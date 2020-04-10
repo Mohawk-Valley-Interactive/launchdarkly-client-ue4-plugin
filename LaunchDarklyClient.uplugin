@@ -1,0 +1,32 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "LaunchDarkly Client",
+	"Description": "Feature Flagging and Experimentation support via LaunchDarkly.",
+	"Category": "Feature Management",
+	"CreatedBy": "Michael Vittiglio",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": false,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"SupportedTargetPlatforms": [
+		"Android",
+		"Win64"
+	],
+	"Modules": [
+		{
+			"Name": "LaunchDarklyClient",
+			"Type": "DeveloperTool",
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [
+				"Android",
+				"Win64"
+			]
+		}
+	]
+}

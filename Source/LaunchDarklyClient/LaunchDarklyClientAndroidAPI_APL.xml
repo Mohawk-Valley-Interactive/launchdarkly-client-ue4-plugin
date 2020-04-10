@@ -1,0 +1,773 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+	<trace enable="true"/>
+
+	<!-- optional additions to proguard -->
+	<proguardAdditions>
+		<insert>
+			<![CDATA[
+				-keepattributes Signature
+				-dontskipnonpubliclibraryclassmembers
+
+				-keepclassmembers class com.epicgames.ue4.GameActivity {
+					public <methods>;
+					public <fields>;
+				}
+			]]>
+		</insert>
+	</proguardAdditions>
+
+	<resourceCopies>
+	</resourceCopies>
+
+	<AARImports>
+		<insertValue value="com.launchdarkly,launchdarkly-android-client-sdk,2.9.1" />
+		<insertNewline/>
+		<insertValue value="com.google.code.gson,gson,2.8.2" />
+		<insertNewline/>
+	</AARImports>
+
+	<!-- optional additions to the GameActivity imports in GameActivity.java -->
+	<gameActivityImportAdditions>
+		<insert>
+			import android.net.Uri;
+			import com.google.gson.Gson;
+			import com.google.gson.JsonArray;
+			import com.google.gson.JsonElement;
+			import com.google.gson.JsonPrimitive;
+			import com.google.gson.JsonObject;
+            import com.launchdarkly.android.ConnectionInformation;
+            import com.launchdarkly.android.FeatureFlagChangeListener;
+            import com.launchdarkly.android.LDClient;
+            import com.launchdarkly.android.LDConfig;
+            import com.launchdarkly.android.LDFailure;
+            import com.launchdarkly.android.LDStatusListener;
+            import com.launchdarkly.android.LDUser;
+			import java.util.ArrayList;
+			import java.util.HashMap;
+			import java.util.HashSet;
+			import java.util.List;
+			import java.util.Map;
+			import java.util.Set;
+		</insert>
+	</gameActivityImportAdditions>
+
+
+	<!-- optional additions to the GameActivity class in GameActivity.java -->
+	<gameActivityClassAdditions>
+		<insert>
+			<![CDATA[
+    public LDClient ldClient = null;
+    public String ldAndroidLogTag = "LaunchDarkly Client->UE4";
+
+    public native void nativeBoolVariationCallback(String flagName, boolean FlagValue);
+    public native void nativeFloatVariationCallback(String flagName, float FlagValue);
+    public native void nativeIntVariationCallback(String flagName, int FlagValue);
+    public native void nativeJsonVariationCallback(String flagName, String FlagValue);
+    public native void nativeStringVariationCallback(String flagName, String FlagValue);
+
+    private Gson gson = new Gson();
+    private Map<String, FeatureFlagChangeListener> registeredBoolFlagListeners = new HashMap<String, FeatureFlagChangeListener>();
+    private Map<String, FeatureFlagChangeListener> registeredFloatFlagListeners = new HashMap<String, FeatureFlagChangeListener>();
+    private Map<String, FeatureFlagChangeListener> registeredIntFlagListeners = new HashMap<String, FeatureFlagChangeListener>();
+    private Map<String, FeatureFlagChangeListener> registeredJsonFlagListeners = new HashMap<String, FeatureFlagChangeListener>();
+    private Map<String, FeatureFlagChangeListener> registeredStringFlagListeners = new HashMap<String, FeatureFlagChangeListener>();
+
+    private String keyAllAttributesPrivate = "all-attributes-private";
+    private String keyBackgroundPollingIntervalMillis = "background-polling-interval-millis";
+    private String keyBaseUri = "base-uri";
+    private String keyConnectionTimeoutMillis = "connection-timeout-millis";
+    private String keyDisableBackgroundUpdating = "disable-background-updating";
+    private String keyEventsCapacity = "events-capacity";
+    private String keyEventsFlushIntervalMillis = "events-flush-interval-millis";
+    private String keyEventsUri = "events-uri";
+    private String keyInlineUsersInEvents = "inline-users-in-events";
+    private String keyMobileKey = "mobile-key";
+    private String keyOffline = "offline";
+    private String keyPollingIntervalInMillis = "polling-interval-in-millis";
+    private String keyPrivateAttributeNames = "private-attribute-name";
+    private String keyStream = "stream";
+    private String keyStreamUri = "stream-uri";
+    private String keyUseReport = "use-report";
+
+    private String keyAnonymousAttribute = "anonymous";
+    private String keyAvatarAttribute = "avatar";
+    private String keyCustomAttributes = "custom";
+    private String keyEmailAttribute = "email";
+    private String keyFirstNameAttribute = "first-name";
+    private String keyIpAttribute = "ip";
+    private String keyLastNameAttribute = "last-name";
+    private String keyNameAttribute = "name";
+    private String keySecondaryKeyAttribute = "secondary-key";
+    private String keyUserKeyAttribute = "user-key";
+	
+    private LDConfig createLdConfigFromJsonString(String jsonString) {
+        LDConfig.Builder configBuilder = new LDConfig.Builder();
+        JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+
+        if(jsonObject.has(keyMobileKey)) {
+            String mobileKey = jsonObject.get(keyMobileKey).getAsString();
+            configBuilder.setMobileKey(mobileKey);
+        } else {
+            android.util.Log.e(ldAndroidLogTag, "No mobile key provided in configuration; initialization will fail.");
+        }
+
+        if(jsonObject.has(keyAllAttributesPrivate) && jsonObject.get(keyAllAttributesPrivate).getAsBoolean()) {
+            configBuilder.allAttributesPrivate();
+        }
+
+        if(jsonObject.has(keyBackgroundPollingIntervalMillis)) {
+            int backgroundPollingIntervalMillis = jsonObject.get(keyBackgroundPollingIntervalMillis).getAsInt();
+            configBuilder.setBackgroundPollingIntervalMillis(backgroundPollingIntervalMillis);
+        }
+
+        if(jsonObject.has(keyBaseUri)) {
+            String baseUri = jsonObject.get(keyBaseUri).getAsString();
+            Uri uri = Uri.parse(baseUri);
+            configBuilder.setBaseUri(uri);
+        }
+
+        if(jsonObject.has(keyConnectionTimeoutMillis)) {
+            int connectionTimeoutMillis = jsonObject.get(keyConnectionTimeoutMillis).getAsInt();
+            configBuilder.setConnectionTimeoutMillis(connectionTimeoutMillis);
+        }
+
+        if(jsonObject.has(keyDisableBackgroundUpdating)) {
+            boolean disableBackgroundUpdating = jsonObject.get(keyDisableBackgroundUpdating).getAsBoolean();
+            configBuilder.setDisableBackgroundUpdating(disableBackgroundUpdating);
+        }
+
+        if(jsonObject.has(keyEventsCapacity)) {
+            int eventsCapacity = jsonObject.get(keyEventsCapacity).getAsInt();
+            configBuilder.setEventsCapacity(eventsCapacity);
+        }
+
+        if(jsonObject.has(keyEventsFlushIntervalMillis)) {
+            int flushIntervalMillis = jsonObject.get(keyEventsFlushIntervalMillis).getAsInt();
+            configBuilder.setEventsFlushIntervalMillis(flushIntervalMillis);
+        }
+
+        if(jsonObject.has(keyEventsUri)) {
+            String eventsUri = jsonObject.get(keyEventsUri).getAsString();
+            Uri uri = Uri.parse(eventsUri);
+            configBuilder.setEventsUri(uri);
+        }
+
+        if(jsonObject.has(keyInlineUsersInEvents)) {
+            boolean isOffline = jsonObject.get(keyInlineUsersInEvents).getAsBoolean();
+            configBuilder.setOffline(isOffline);
+        }
+
+        if(jsonObject.has(keyOffline)) {
+            boolean isOffline = jsonObject.get(keyOffline).getAsBoolean();
+            configBuilder.setOffline(isOffline);
+        }
+
+        if(jsonObject.has(keyPollingIntervalInMillis)) {
+            int pollingIntervalInMillis = jsonObject.get(keyPollingIntervalInMillis).getAsInt();
+            configBuilder.setPollingIntervalMillis(pollingIntervalInMillis);
+        }
+
+        if(jsonObject.has(keyPrivateAttributeNames)) {
+            JsonArray jsonArray = jsonObject.get(keyPrivateAttributeNames).getAsJsonArray();
+            int arraySize = jsonArray.size();
+            Set<String> privateAttributeNames = new HashSet<>(arraySize);
+            for(int i = 0; i < arraySize; ++i) {
+                privateAttributeNames.add(jsonArray.get(i).getAsString());
+            }
+            configBuilder.setPrivateAttributeNames(privateAttributeNames);
+        }
+
+        if(jsonObject.has(keyStream)) {
+            boolean isStreaming = jsonObject.get(keyStream).getAsBoolean();
+            configBuilder.setStream(isStreaming);
+        }
+
+        if(jsonObject.has(keyStreamUri)) {
+            String streamUri = jsonObject.get(keyStreamUri).getAsString();
+            Uri uri = Uri.parse(streamUri);
+            configBuilder.setStreamUri(uri);
+        }
+
+        if(jsonObject.has(keyUseReport)) {
+            boolean useReport = jsonObject.get(keyUseReport).getAsBoolean();
+            configBuilder.setUseReport(useReport);
+        }
+
+        return configBuilder.build();
+    }
+
+    private LDUser createLdUserFromJsonString(String jsonDataString) {
+        JsonObject jsonData = gson.fromJson(jsonDataString, JsonObject.class);
+        List<String> privateAttributeNames = null;
+        if(jsonData.has(keyPrivateAttributeNames)) {
+            JsonArray privateAttributesAsJson = jsonData.getAsJsonArray(keyPrivateAttributeNames);
+            for(JsonElement privateAttributeAsJson : privateAttributesAsJson) {
+                privateAttributeNames.add(privateAttributeAsJson.getAsString());
+            }
+        } else {
+            privateAttributeNames = new ArrayList<String>();
+        }
+
+        String userKey = "UE4_DefaultUserKey";
+        if(jsonData.has(keyUserKeyAttribute)) {
+            userKey = jsonData.get(keyUserKeyAttribute).getAsString();
+        }
+        LDUser.Builder userBuilder = new LDUser.Builder(userKey);
+
+        if(jsonData.has(keyAnonymousAttribute)) {
+            userBuilder.anonymous(jsonData.get(keyAnonymousAttribute).getAsBoolean());
+        }
+        if(jsonData.has(keyAvatarAttribute)) {
+            if(privateAttributeNames.contains(keyAvatarAttribute)) {
+                userBuilder.privateAvatar(jsonData.get(keyAvatarAttribute).getAsString());
+            } else {
+                userBuilder.avatar(jsonData.get(keyAvatarAttribute).getAsString());
+            }
+        }
+        if(jsonData.has(keyEmailAttribute)) {
+            if(privateAttributeNames.contains(keyEmailAttribute)) {
+                userBuilder.privateEmail(jsonData.get(keyEmailAttribute).getAsString());
+            } else {
+                userBuilder.email(jsonData.get(keyEmailAttribute).getAsString());
+            }
+        }
+        if(jsonData.has(keyFirstNameAttribute)) {
+            if(privateAttributeNames.contains(keyFirstNameAttribute)) {
+                userBuilder.privateFirstName(jsonData.get(keyFirstNameAttribute).getAsString());
+            } else {
+                userBuilder.firstName(jsonData.get(keyFirstNameAttribute).getAsString());
+            }
+        }
+        if(jsonData.has(keyIpAttribute)) {
+            if(privateAttributeNames.contains(keyIpAttribute)) {
+                userBuilder.privateIp(jsonData.get(keyIpAttribute).getAsString());
+            } else {
+                userBuilder.ip(jsonData.get(keyIpAttribute).getAsString());
+            }
+        }
+        if(jsonData.has(keyLastNameAttribute)) {
+            if(privateAttributeNames.contains(keyLastNameAttribute)) {
+                userBuilder.privateLastName(jsonData.get(keyLastNameAttribute).getAsString());
+            } else {
+                userBuilder.lastName(jsonData.get(keyLastNameAttribute).getAsString());
+            }
+        }
+        if(jsonData.has(keyNameAttribute)) {
+            if(privateAttributeNames.contains(keyNameAttribute)) {
+                userBuilder.privateName(jsonData.get(keyNameAttribute).getAsString());
+            } else {
+                userBuilder.name(jsonData.get(keyNameAttribute).getAsString());
+            }
+        }
+        if(jsonData.has(keySecondaryKeyAttribute)) {
+            if(privateAttributeNames.contains(keySecondaryKeyAttribute)) {
+                userBuilder.privateSecondary(jsonData.get(keySecondaryKeyAttribute).getAsString());
+            } else {
+                userBuilder.secondary(jsonData.get(keySecondaryKeyAttribute).getAsString());
+            }
+        }
+        if(jsonData.has(keyCustomAttributes)) {
+            JsonObject customData = jsonData.get(keyCustomAttributes).getAsJsonObject();
+            for(Map.Entry<String, JsonElement> entry : customData.entrySet()) {
+                String entryKey = entry.getKey();
+                if(privateAttributeNames.contains(entryKey)) {
+                    JsonElement entryValue = entry.getValue();
+                    if(entryValue.isJsonPrimitive())
+                    {
+                        JsonPrimitive jPrimitive = entryValue.getAsJsonPrimitive();
+                        if(jPrimitive.isBoolean()) {
+                            userBuilder.privateCustom(entryKey, jPrimitive.getAsBoolean());
+                        } else if(jPrimitive.isNumber()) {
+                            userBuilder.privateCustom(entryKey, jPrimitive.getAsNumber());
+                        } else if(jPrimitive.isString()) {
+                            userBuilder.privateCustom(entryKey, jPrimitive.getAsString());
+                        }
+                    } else if(entryValue.isJsonArray()) {
+                        JsonArray jArray = entryValue.getAsJsonArray();
+                        int arraySize = jArray.size();
+                        if(arraySize > 0) {
+                            if(jArray.get(0).getAsJsonPrimitive().isNumber()) {
+                                List<Number> numberList = new ArrayList<>(arraySize);
+                                for(JsonElement el : jArray) {
+                                    numberList.add(el.getAsNumber());
+                                }
+                                userBuilder.privateCustomNumber(entryKey, numberList);
+                            } else if(jArray.get(0).getAsJsonPrimitive().isString()) {
+                                List<String> stringList = new ArrayList<>(arraySize);
+                                for(JsonElement el : jArray) {
+                                    stringList.add(el.getAsString());
+                                }
+                                userBuilder.privateCustomString(entryKey, stringList);
+                            }
+                        }
+                    }
+                } else {
+                    JsonElement entryValue = entry.getValue();
+                    if(entryValue.isJsonPrimitive())
+                    {
+                        JsonPrimitive jPrimitive = entryValue.getAsJsonPrimitive();
+                        if(jPrimitive.isBoolean()) {
+                            userBuilder.custom(entryKey, jPrimitive.getAsBoolean());
+                        } else if(jPrimitive.isNumber()) {
+                            userBuilder.custom(entryKey, jPrimitive.getAsNumber());
+                        } else if(jPrimitive.isString()) {
+                            userBuilder.custom(entryKey, jPrimitive.getAsString());
+                        }
+                    } else if(entryValue.isJsonArray()) {
+                        JsonArray jArray = entryValue.getAsJsonArray();
+                        int arraySize = jArray.size();
+                        if(arraySize > 0) {
+                            if(jArray.get(0).getAsJsonPrimitive().isNumber()) {
+                                List<Number> numberList = new ArrayList<>(arraySize);
+                                for(JsonElement el : jArray) {
+                                    numberList.add(el.getAsNumber());
+                                }
+                                userBuilder.customNumber(entryKey, numberList);
+                            } else if(jArray.get(0).getAsJsonPrimitive().isString()) {
+                                List<String> stringList = new ArrayList<>(arraySize);
+                                for(JsonElement el : jArray) {
+                                    stringList.add(el.getAsString());
+                                }
+                                userBuilder.customString(entryKey, stringList);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return userBuilder.build();
+    }
+	
+    public boolean AndroidLdSdkInterface_InitializeClient(String configurationAsJsonString, String userAttributesAsJsonString, int connectionTimeout) {
+        if(ldClient != null) {
+            android.util.Log.w(ldAndroidLogTag, "InitializeClient called while Client is not null. Initialize should only be called once until shutdown.");
+            return ldClient.isInitialized();
+        }
+
+        LDConfig config = createLdConfigFromJsonString(configurationAsJsonString);
+        LDUser user = createLdUserFromJsonString(userAttributesAsJsonString);
+
+        ldClient = LDClient.init(getApplication(), config, user, connectionTimeout);
+        ldClient.registerStatusListener(new LDStatusListener() {
+            @Override
+            public void onConnectionModeChanged(ConnectionInformation connectionInformation) {
+                android.util.Log.i(ldAndroidLogTag, "LDClient connection changed: " + connectionInformation.getConnectionMode().toString());
+                if(connectionInformation.getConnectionMode() == ConnectionInformation.ConnectionMode.STREAMING) {
+                    android.util.Log.i(ldAndroidLogTag, "LDClient updating all event listeners.");
+                    RegisterFlagListeners();
+                    //UpdateAllFlagListeners();
+                }
+            }
+
+            @Override
+            public void onInternalFailure(LDFailure ldFailure) {
+                android.util.Log.e(ldAndroidLogTag, "LDClient connection failed with error: " + ldFailure.getMessage());
+            }
+        });
+
+        return ldClient.isInitialized();
+    }
+
+    public void AndroidLdSdkInterface_ShutdownClient() {
+        if(ldClient == null) {
+            android.util.Log.w(ldAndroidLogTag, "ShutdownClient called while Client is null. Likely never initialized.");
+            return;
+        }
+
+        android.util.Log.i(ldAndroidLogTag, "Shutting down LD client.");
+        if (ldClient.isInitialized()) {
+			
+            try {
+                ldClient.close();
+            } catch (IOException e) {
+                android.util.Log.e(ldAndroidLogTag, e.getMessage());
+            }
+            ldClient = null;
+        }
+    }
+
+    public boolean AndroidLdSdkInterface_IsInitialized() {
+        if(ldClient == null) {
+            android.util.Log.w(ldAndroidLogTag, "IsInitialized called while Client is null. Initialize likely never called.");
+            return false;
+        }
+
+        return ldClient.isInitialized();
+    }
+
+    public boolean AndroidLdSdkInterface_IsOffline() {
+        if(ldClient == null) {
+            android.util.Log.w(ldAndroidLogTag, "IsOffline called while Client is null. Likely uninitialized.");
+            return false;
+        }
+
+        return ldClient.isOffline();
+    }
+
+    public void AndroidLdSdkInterface_SetOffline() {
+        if(ldClient == null) {
+            android.util.Log.w(ldAndroidLogTag, "SetOffline called while Client is null. Likely uninitialized.");
+            return;
+        }
+
+        ldClient.setOffline();
+    }
+
+    public void AndroidLdSdkInterface_SetOnline() {
+        if(ldClient == null) {
+            android.util.Log.w(ldAndroidLogTag, "SetOnline called while Client is null. Likely uninitialized.");
+            return;
+        }
+
+        ldClient.setOnline();
+    }
+
+    public void AndroidLdSdkInterface_RefreshUserAttributes(String userAttributesAsJsonString) {
+        if(ldClient == null) {
+            android.util.Log.w(ldAndroidLogTag, "RefreshUserAttributes called while Client is null. Likely never initialized.");
+            return;
+        }
+
+        LDUser ldUser = createLdUserFromJsonString(userAttributesAsJsonString);
+        ldClient.identify(ldUser);
+    }
+
+    public boolean AndroidLdSdkInterface_GetBoolVariation(String flagName, boolean defaultValue) {
+        if (ldClient != null && ldClient.isInitialized()) {
+            return ldClient.boolVariation(flagName, defaultValue);
+        } else {
+            android.util.Log.w(ldAndroidLogTag, "Variation '" + flagName + "' called while client object is null or not initialized; returning default value (" + defaultValue + ").");
+        }
+
+        return defaultValue;
+    }
+
+    public float AndroidLdSdkInterface_GetFloatVariation(String flagName, float defaultValue) {
+        if (ldClient != null && ldClient.isInitialized()) {
+            return ldClient.floatVariation(flagName, defaultValue);
+        } else {
+            android.util.Log.w(ldAndroidLogTag, "Variation '" + flagName + "' called while client object is null or not initialized; returning default value (" + defaultValue + ").");
+        }
+
+        return defaultValue;
+    }
+
+    public int AndroidLdSdkInterface_GetIntVariation(String flagName, int defaultValue) {
+        if (ldClient != null && ldClient.isInitialized()) {
+            return ldClient.intVariation(flagName, defaultValue);
+        } else {
+            android.util.Log.w(ldAndroidLogTag, "Variation '" + flagName + "' called while client object is null or not initialized; returning default value (" + defaultValue + ").");
+        }
+
+        return defaultValue;
+    }
+
+    public String AndroidLdSdkInterface_GetJsonVariation(String flagName, String defaultValue) {
+        if (ldClient != null && ldClient.isInitialized()) {
+            JsonElement jsonElement = gson.fromJson(defaultValue, JsonElement.class);
+            return ldClient.jsonVariation(flagName, jsonElement).toString();
+        } else {
+            android.util.Log.w(ldAndroidLogTag, "Variation '" + flagName + "' called while client object is null or not initialized; returning default value (" + defaultValue + ").");
+        }
+
+        return defaultValue;
+    }
+
+    public String AndroidLdSdkInterface_GetStringVariation(String flagName, String defaultValue) {
+        if (ldClient != null && ldClient.isInitialized()) {
+            return ldClient.stringVariation(flagName, defaultValue);
+        } else {
+            android.util.Log.w(ldAndroidLogTag, "Variation '" + flagName + "' called while client object is null or not initialized; returning default value (" + defaultValue + ").");
+        }
+
+        return defaultValue;
+    }
+
+    public void AndroidLdSdkInterface_RegisterBoolFeatureFlagListener(final String flagName) {
+        if (registeredBoolFlagListeners.containsKey(flagName)) {
+            return;
+        }
+
+        registeredBoolFlagListeners.put(flagName, new FeatureFlagChangeListener() {
+            @Override
+            public void onFeatureFlagChange(String flagKey) {
+                android.util.Log.i(ldAndroidLogTag, "nativeBoolVariationCallback: Called for >>" + flagKey + "<<");
+                nativeBoolVariationCallback(flagKey, ldClient.boolVariation(flagKey, false));
+            }
+        });
+
+        if(ldClient != null) {
+		    ldClient.registerFeatureFlagListener(flagName, registeredBoolFlagListeners.get(flagName));
+		}
+    }
+
+    public void AndroidLdSdkInterface_UnregisterBoolFeatureFlagListener(final String flagName) {
+        if (registeredBoolFlagListeners.containsKey(flagName) == false) {
+            return;
+        }
+
+        if(ldClient != null) {
+            ldClient.unregisterFeatureFlagListener(flagName, registeredBoolFlagListeners.get(flagName));
+        }
+
+        registeredBoolFlagListeners.remove(flagName);
+    }
+
+    public void AndroidLdSdkInterface_RegisterFloatFeatureFlagListener(final String flagName) {
+        if (registeredFloatFlagListeners.containsKey(flagName)) {
+            return;
+        }
+
+        registeredFloatFlagListeners.put(flagName, new FeatureFlagChangeListener() {
+            @Override
+            public void onFeatureFlagChange(String flagKey) {
+                android.util.Log.i(ldAndroidLogTag, "nativeFloatVariationCallback: Called for >>" + flagKey + "<<");
+                nativeFloatVariationCallback(flagKey, ldClient.floatVariation(flagKey, 0.0f));
+            }
+        });
+
+        if(ldClient != null) {
+            ldClient.registerFeatureFlagListener(flagName, registeredFloatFlagListeners.get(flagName));
+        }
+    }
+
+    public void AndroidLdSdkInterface_UnregisterFloatFeatureFlagListener(final String flagName) {
+        if (registeredFloatFlagListeners.containsKey(flagName) == false) {
+            return;
+        }
+
+        if(ldClient != null) {
+            ldClient.unregisterFeatureFlagListener(flagName, registeredFloatFlagListeners.get(flagName));
+        }
+
+        registeredFloatFlagListeners.remove(flagName);
+
+    }
+
+    public void AndroidLdSdkInterface_RegisterIntFeatureFlagListener(final String flagName) {
+        if (registeredIntFlagListeners.containsKey(flagName)) {
+            return;
+        }
+
+        registeredIntFlagListeners.put(flagName, new FeatureFlagChangeListener() {
+            @Override
+            public void onFeatureFlagChange(String flagKey) {
+                android.util.Log.i(ldAndroidLogTag, "nativeIntVariationCallback: Called for >>" + flagKey + "<<");
+                nativeIntVariationCallback(flagKey, ldClient.intVariation(flagKey, 0));
+            }
+        });
+
+        if(ldClient != null) {
+            ldClient.registerFeatureFlagListener(flagName, registeredIntFlagListeners.get(flagName));
+        }
+    }
+
+    public void AndroidLdSdkInterface_UnregisterIntFeatureFlagListener(final String flagName) {
+        if (registeredIntFlagListeners.containsKey(flagName) == false) {
+            return;
+        }
+
+        if(ldClient != null) {
+            registeredIntFlagListeners.remove(flagName);
+        }
+
+        ldClient.unregisterFeatureFlagListener(flagName, registeredIntFlagListeners.get(flagName));
+    }
+
+    public void AndroidLdSdkInterface_RegisterJsonFeatureFlagListener(final String flagName) {
+        if (registeredJsonFlagListeners.containsKey(flagName)) {
+            return;
+        }
+
+        registeredJsonFlagListeners.put(flagName, new FeatureFlagChangeListener() {
+            @Override
+            public void onFeatureFlagChange(String flagKey) {
+                JsonElement defaultElement = gson.fromJson("{}", JsonElement.class);
+                android.util.Log.i(ldAndroidLogTag, "nativeJsonVariationCallback: Called for >>" + flagKey + "<<");
+                nativeJsonVariationCallback(flagKey, ldClient.jsonVariation(flagName, defaultElement).toString());
+            }
+        });
+
+        if(ldClient != null) {
+            ldClient.registerFeatureFlagListener(flagName, registeredJsonFlagListeners.get(flagName));
+        }
+    }
+
+    public void AndroidLdSdkInterface_UnregisterJsonFeatureFlagListener(final String flagName) {
+        if (registeredJsonFlagListeners.containsKey(flagName) == false) {
+            return;
+        }
+
+        if(ldClient != null) {
+            ldClient.unregisterFeatureFlagListener(flagName, registeredJsonFlagListeners.get(flagName));
+        }
+
+        registeredJsonFlagListeners.remove(flagName);
+    }
+
+    public void AndroidLdSdkInterface_RegisterStringFeatureFlagListener(final String flagName) {
+        if (registeredStringFlagListeners.containsKey(flagName)) {
+            return;
+        }
+
+        registeredStringFlagListeners.put(flagName, new FeatureFlagChangeListener() {
+            @Override
+            public void onFeatureFlagChange(String flagKey) {
+                android.util.Log.i(ldAndroidLogTag, "nativeStringVariationCallback: Called for >>" + flagKey + "<<");
+                nativeStringVariationCallback(flagKey, ldClient.stringVariation(flagKey, ""));
+            }
+        });
+
+        if(ldClient != null) {
+            ldClient.registerFeatureFlagListener(flagName, registeredStringFlagListeners.get(flagName));
+        }
+    }
+
+    public void AndroidLdSdkInterface_UnregisterStringFeatureFlagListener(final String flagName) {
+        if (registeredStringFlagListeners.containsKey(flagName) == false) {
+            return;
+        }
+
+        if(ldClient != null) {
+            ldClient.unregisterFeatureFlagListener(flagName, registeredStringFlagListeners.get(flagName));
+        }
+
+        registeredStringFlagListeners.remove(flagName);
+    }
+
+    public void AndroidLdSdkInterface_Track(String metricName) {
+        if(ldClient == null) {
+            android.util.Log.w(ldAndroidLogTag, "Track called while Client is null. Likely uninitialized.");
+            return;
+        }
+
+        ldClient.track(metricName);
+    }
+
+    public void AndroidLdSdkInterface_TrackWithData(String metricName, String metricJsonData) {
+        if(ldClient == null) {
+            android.util.Log.w(ldAndroidLogTag, "Track called while Client is null. Likely uninitialized.");
+            return;
+        }
+
+        JsonElement jsonElement = gson.fromJson(metricJsonData, JsonElement.class);
+        ldClient.track(metricName, jsonElement);
+    }
+
+    protected void UpdateAllFlagListeners() {
+        android.util.Log.i(ldAndroidLogTag, "UpdateAllFlagListeners: STARTED");
+        for(String key : registeredBoolFlagListeners.keySet()) {
+            boolean value = ldClient.boolVariation(key, false);
+            nativeBoolVariationCallback(key, value);
+        }
+        for(String key : registeredFloatFlagListeners.keySet()) {
+            float value = ldClient.floatVariation(key, 0.0f);
+            nativeFloatVariationCallback(key, value);
+        }
+        for(String key : registeredIntFlagListeners.keySet()) {
+            int value = ldClient.intVariation(key, 0);
+            nativeIntVariationCallback(key, value);
+        }
+        for(String key : registeredJsonFlagListeners.keySet()) {
+            JsonElement defaultElement = gson.fromJson("{}", JsonElement.class);
+            nativeJsonVariationCallback(key, ldClient.jsonVariation(key, defaultElement).toString());
+        }
+        for(String key : registeredStringFlagListeners.keySet()) {
+            String value = ldClient.stringVariation(key, "");
+            nativeStringVariationCallback(key, value);
+        }
+        android.util.Log.i(ldAndroidLogTag, "UpdateAllFlagListeners: COMPLETE");
+    }
+
+    protected void RegisterFlagListeners() {
+        android.util.Log.i(ldAndroidLogTag, "RegisterFlagListeners: STARTED");
+        for(String key : registeredBoolFlagListeners.keySet()) {
+            ldClient.registerFeatureFlagListener(key, registeredBoolFlagListeners.get(key));
+        }
+        for(String key : registeredFloatFlagListeners.keySet()) {
+            ldClient.registerFeatureFlagListener(key, registeredFloatFlagListeners.get(key));
+        }
+        for(String key : registeredIntFlagListeners.keySet()) {
+            ldClient.registerFeatureFlagListener(key, registeredIntFlagListeners.get(key));
+        }
+        for(String key : registeredJsonFlagListeners.keySet()) {
+            ldClient.registerFeatureFlagListener(key, registeredJsonFlagListeners.get(key));
+        }
+        for(String key : registeredStringFlagListeners.keySet()) {
+            ldClient.registerFeatureFlagListener(key, registeredStringFlagListeners.get(key));
+        }
+        android.util.Log.i(ldAndroidLogTag, "RegisterFlagListeners: COMPLETE!");
+	}
+
+			]]>
+		</insert>
+	</gameActivityClassAdditions>
+
+	<!-- optional additions to GameActivity onCreate metadata reading in GameActivity.java -->
+	<gameActivityReadMetadataAdditions>
+		<insert>
+
+		</insert>
+	</gameActivityReadMetadataAdditions>
+
+	<!-- optional additions to GameActivity onCreate in GameActivity.java -->
+	<gameActivityOnCreateAdditions>
+		<insert>
+			<![CDATA[
+		]]>
+		</insert>
+	</gameActivityOnCreateAdditions>
+
+	<!-- optional additions to GameActivity onDestroy in GameActivity.java -->
+	<gameActivityOnDestroyAdditions>
+		<insert>
+
+		</insert>
+	</gameActivityOnDestroyAdditions>
+
+
+	<!-- optional additions to GameActivity onStart in GameActivity.java -->
+	<gameActivityOnStartAdditions>
+		<insert>
+
+		</insert>
+	</gameActivityOnStartAdditions>
+
+	<!-- optional additions to GameActivity onStop in GameActivity.java -->
+	<gameActivityOnStopAdditions>
+		<insert>
+
+		</insert>
+	</gameActivityOnStopAdditions>
+
+
+	<!-- optional additions to GameActivity onPause in GameActivity.java	-->
+	<gameActivityOnPauseAdditions>
+		<insert>
+			<![CDATA[
+    ]]>
+		</insert>
+	</gameActivityOnPauseAdditions>
+
+
+	<!-- optional additions to GameActivity onResume in GameActivity.java	-->
+	<gameActivityOnResumeAdditions>
+		<insert>
+		</insert>
+	</gameActivityOnResumeAdditions>
+
+
+	<!-- optional additions to GameActivity onActivityResult in GameActivity.java -->
+	<gameActivityOnActivityResultAdditions>
+		<insert>
+		</insert>
+	</gameActivityOnActivityResultAdditions>
+
+
+	<!-- optional libraries to load in GameActivity.java before libUE4.so -->
+	<soLoadLibrary>
+		<!-- need this if plugin enabled and supported architecture, even if not packaged for GearVR -->
+	</soLoadLibrary>
+</root>
