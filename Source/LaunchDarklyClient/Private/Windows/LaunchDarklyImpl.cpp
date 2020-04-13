@@ -320,12 +320,12 @@ void FLaunchDarklyImpl::RegisterBoolFlagListener(ULdBoolFlagListener* FlagListen
 			LDClientRegisterFeatureFlagListener(LdClient, TCHAR_TO_ANSI(*FlagName), FLaunchDarklyImpl::BoolFlagListener);
 		}
 		TArray<ULdBoolFlagListener*> FlagListenerArray;
-		FlagListenerArray.Emplace(FlagListener);
+		FlagListenerArray.Add(FlagListener);
 		BoolFlagListeners.Add(FlagName, FlagListenerArray);
 	}
 	else
 	{
-		BoolFlagListeners[FlagName].Emplace(FlagListener);
+		BoolFlagListeners[FlagName].Add(FlagListener);
 	}
 }
 
@@ -353,12 +353,12 @@ void FLaunchDarklyImpl::RegisterFloatFlagListener(ULdFloatFlagListener* FlagList
 			LDClientRegisterFeatureFlagListener(LdClient, TCHAR_TO_ANSI(*FlagName), FLaunchDarklyImpl::FloatFlagListener);
 		}
 		TArray<ULdFloatFlagListener*> FlagListenerArray;
-		FlagListenerArray.Emplace(FlagListener);
+		FlagListenerArray.Add(FlagListener);
 		FloatFlagListeners.Add(FlagName, FlagListenerArray);
 	}
 	else
 	{
-		FloatFlagListeners[FlagName].Emplace(FlagListener);
+		FloatFlagListeners[FlagName].Add(FlagListener);
 	}
 }
 
@@ -386,12 +386,12 @@ void FLaunchDarklyImpl::RegisterIntFlagListener(ULdIntFlagListener* FlagListener
 			LDClientRegisterFeatureFlagListener(LdClient, TCHAR_TO_ANSI(*FlagName), FLaunchDarklyImpl::IntFlagListener);
 		}
 		TArray<ULdIntFlagListener*> FlagListenerArray;
-		FlagListenerArray.Emplace(FlagListener);
+		FlagListenerArray.Add(FlagListener);
 		IntFlagListeners.Add(FlagName, FlagListenerArray);
 	}
 	else
 	{
-		IntFlagListeners[FlagName].Emplace(FlagListener);
+		IntFlagListeners[FlagName].Add(FlagListener);
 	}
 }
 
@@ -419,12 +419,12 @@ void FLaunchDarklyImpl::RegisterJsonFlagListener(ULdJsonFlagListener* FlagListen
 			LDClientRegisterFeatureFlagListener(LdClient, TCHAR_TO_ANSI(*FlagName), FLaunchDarklyImpl::JsonFlagListener);
 		}
 		TArray<ULdJsonFlagListener*> FlagListenerArray;
-		FlagListenerArray.Emplace(FlagListener);
+		FlagListenerArray.Add(FlagListener);
 		JsonFlagListeners.Add(FlagName, FlagListenerArray);
 	}
 	else
 	{
-		JsonFlagListeners[FlagName].Emplace(FlagListener);
+		JsonFlagListeners[FlagName].Add(FlagListener);
 	}
 }
 
@@ -452,12 +452,12 @@ void FLaunchDarklyImpl::RegisterStringFlagListener(ULdStringFlagListener* FlagLi
 			LDClientRegisterFeatureFlagListener(LdClient, TCHAR_TO_ANSI(*FlagName), FLaunchDarklyImpl::StringFlagListener);
 		}
 		TArray<ULdStringFlagListener*> FlagListenerArray;
-		FlagListenerArray.Emplace(FlagListener);
+		FlagListenerArray.Add(FlagListener);
 		StringFlagListeners.Add(FlagName, FlagListenerArray);
 	}
 	else
 	{
-		StringFlagListeners[FlagName].Emplace(FlagListener);
+		StringFlagListeners[FlagName].Add(FlagListener);
 	}
 }
 
