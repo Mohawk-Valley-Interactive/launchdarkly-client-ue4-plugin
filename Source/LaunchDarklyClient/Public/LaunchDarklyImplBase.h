@@ -11,6 +11,8 @@ class ULdJsonFlagListener;
 class ULdStringFlagListener;
 class ULdUserObject;
 
+DECLARE_LOG_CATEGORY_EXTERN(LaunchDarklyClient, Log, All);
+
 class LAUNCHDARKLYCLIENT_API FLaunchDarklyImplBase
 {
 public:

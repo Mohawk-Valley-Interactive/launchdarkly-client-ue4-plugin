@@ -7,8 +7,6 @@
 
 #include "LaunchDarklyImplBase.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LaunchDarklyClient, Log, All);
-
 class LAUNCHDARKLYCLIENT_API FLaunchDarklyClientModule : public IModuleInterface
 {
 public:

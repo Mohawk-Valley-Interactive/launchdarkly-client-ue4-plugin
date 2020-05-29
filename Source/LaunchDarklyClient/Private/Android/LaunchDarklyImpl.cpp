@@ -4,7 +4,6 @@
 #include "Dom/JsonObject.h"
 #include "Engine/Engine.h"
 
-#include "LaunchDarklyComponent.h"
 #include "LdConfigObject.h"
 #include "LdBoolFlagListener.h"
 #include "LdFloatFlagListener.h"
@@ -17,7 +16,7 @@
 
 #if PLATFORM_ANDROID
 #include "Android/AndroidJNI.h"
-#include "AndroidApplication.h"
+#include "Android/AndroidApplication.h"
 
 static jmethodID AndroidLdSdkInterface_InitializeClient = 0;
 static jmethodID AndroidLdSdkInterface_ShutdownClient = 0;
@@ -49,7 +48,7 @@ static jmethodID AndroidLdSdkInterface_Track = 0;
 static jmethodID AndroidLdSdkInterface_TrackWithData = 0;
 #endif
 
-DECLARE_LOG_CATEGORY_EXTERN(LaunchDarklyClient, Log, All);
+DEFINE_LOG_CATEGORY(LaunchDarklyClient);
 
 TMap<FString, TArray<ULdBoolFlagListener*>> FLaunchDarklyImpl::BoolFlagListeners;
 TMap<FString, TArray<ULdFloatFlagListener*>> FLaunchDarklyImpl::FloatFlagListeners;
