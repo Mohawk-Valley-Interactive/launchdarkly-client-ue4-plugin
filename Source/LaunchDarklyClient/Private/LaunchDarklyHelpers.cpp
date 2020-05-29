@@ -9,6 +9,11 @@
 FVector ULaunchDarklyHelpers::LdNodeObjectToVector(ULdNodeObject* LdDataObject)
 {
 	TSharedPtr<FJsonObject> LdData = LdDataObject->GetObjectData();
+	if(LdData == nullptr)
+	{
+		return FVector();
+	}
+
 	FVector V(
 		LdData->HasTypedField<EJson::Number>("x") ? LdData->GetNumberField("x") : 0.0f,
 		LdData->HasTypedField<EJson::Number>("y") ? LdData->GetNumberField("y") : 0.0f,
@@ -33,6 +38,11 @@ ULdNodeObject* ULaunchDarklyHelpers::VectorToLdNodeObject(FVector V)
 FColor ULaunchDarklyHelpers::LdNodeObjectToColor(ULdNodeObject* LdDataObject)
 {
 	TSharedPtr<FJsonObject> LdData = LdDataObject->GetObjectData();
+	if(LdData == nullptr)
+	{
+		return FColor();
+	}
+
 	FColor C(
 		LdData->HasTypedField<EJson::Number>("r") ? (uint8)LdData->GetNumberField("r") : 0,
 		LdData->HasTypedField<EJson::Number>("g") ? (uint8)LdData->GetNumberField("g") : 0,
@@ -60,6 +70,11 @@ ULdNodeObject* ULaunchDarklyHelpers::ColorToLdNodeObject(FColor C)
 FLinearColor ULaunchDarklyHelpers::LdNodeObjectToLinearColor(ULdNodeObject* LdDataObject)
 {
 	TSharedPtr<FJsonObject> LdData = LdDataObject->GetObjectData();
+	if(LdData == nullptr)
+	{
+		return FLinearColor();
+	}
+
 	FLinearColor C(
 		LdData->HasTypedField<EJson::Number>("r") ? LdData->GetNumberField("r") : 0.0f,
 		LdData->HasTypedField<EJson::Number>("g") ? LdData->GetNumberField("g") : 0.0f,
