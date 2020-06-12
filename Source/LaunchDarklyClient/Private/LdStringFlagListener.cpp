@@ -10,7 +10,6 @@ ULdStringFlagListener::ULdStringFlagListener()
 void ULdStringFlagListener::BeginDestroy()
 {
 	Unregister();
-
 	Super::BeginDestroy();
 }
 

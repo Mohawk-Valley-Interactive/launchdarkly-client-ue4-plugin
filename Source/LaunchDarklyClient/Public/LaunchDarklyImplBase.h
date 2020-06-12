@@ -48,21 +48,31 @@ public:
 
 	virtual FString GetStringVariation(FString FlagName, FString DefaultValue);
 
+	TMap<FString, TArray<ULdBoolFlagListener*>>& GetBoolFlagListeners();
+
 	virtual void RegisterBoolFlagListener(ULdBoolFlagListener* FlagListener, FString FlagName);
 
 	virtual void UnregisterBoolFlagListener(ULdBoolFlagListener* FlagListener, FString FlagName);
+
+	TMap<FString, TArray<ULdFloatFlagListener*>>& GetFloatFlagListeners();
 
 	virtual void RegisterFloatFlagListener(ULdFloatFlagListener* FlagListener, FString FlagName);
 
 	virtual void UnregisterFloatFlagListener(ULdFloatFlagListener* FlagListener, FString FlagName);
 
+	TMap<FString, TArray<ULdIntFlagListener*>>& GetIntFlagListeners();
+
 	virtual void RegisterIntFlagListener(ULdIntFlagListener* FlagListener, FString FlagName);
 
 	virtual void UnregisterIntFlagListener(ULdIntFlagListener* FlagListener, FString FlagName);
 
+	TMap<FString, TArray<ULdJsonFlagListener*>>& GetJsonFlagListeners();
+
 	virtual void RegisterJsonFlagListener(ULdJsonFlagListener* FlagListener, FString FlagName);
 
 	virtual void UnregisterJsonFlagListener(ULdJsonFlagListener* FlagListener, FString FlagName);
+
+	TMap<FString, TArray<ULdStringFlagListener*>>& GetStringFlagListeners();
 
 	virtual void RegisterStringFlagListener(ULdStringFlagListener* FlagListener, FString FlagName);
 
@@ -77,4 +87,18 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// ANDROID SPECIFIC ////////////////////////////////////////////////////////////////////////////
 	virtual void InitJavaFunctions();
+
+protected:
+	void ResetListeners();
+
+	UPROPERTY()
+	TMap<FString, TArray<ULdBoolFlagListener*>> BoolFlagListeners;
+	UPROPERTY()
+	TMap<FString, TArray<ULdFloatFlagListener*>> FloatFlagListeners;
+	UPROPERTY()
+	TMap<FString, TArray<ULdIntFlagListener*>> IntFlagListeners;
+	UPROPERTY()
+	TMap<FString, TArray<ULdJsonFlagListener*>> JsonFlagListeners;
+	UPROPERTY()
+	TMap<FString, TArray<ULdStringFlagListener*>> StringFlagListeners;
 };

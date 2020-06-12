@@ -10,7 +10,6 @@ ULdBoolFlagListener::ULdBoolFlagListener()
 void ULdBoolFlagListener::BeginDestroy()
 {
 	Unregister();
-
 	Super::BeginDestroy();
 }
 

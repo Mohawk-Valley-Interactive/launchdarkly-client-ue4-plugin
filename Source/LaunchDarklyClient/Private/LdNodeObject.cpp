@@ -3,7 +3,7 @@
 
 ULdNodeObject::ULdNodeObject()
 {
-	LdNodeData = MakeShared<FJsonObject>();
+	LdNodeData = nullptr;
 }
 
 void ULdNodeObject::Initialize(TSharedPtr<FJsonObject> const LdData)

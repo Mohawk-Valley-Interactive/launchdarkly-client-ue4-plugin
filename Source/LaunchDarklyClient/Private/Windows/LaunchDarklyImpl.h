@@ -71,12 +71,6 @@ protected:
 	// Static all the things that need to live in the two worlds of LD and UE4 Game threads.
 	static LDClient_i* LdClient;
 
-	static TMap<FString, TArray<ULdBoolFlagListener*>> BoolFlagListeners;
-	static TMap<FString, TArray<ULdFloatFlagListener*>> FloatFlagListeners;
-	static TMap<FString, TArray<ULdIntFlagListener*>> IntFlagListeners;
-	static TMap<FString, TArray<ULdJsonFlagListener*>> JsonFlagListeners;
-	static TMap<FString, TArray<ULdStringFlagListener*>> StringFlagListeners;
-
 	static void BoolFlagListener(const char* const FlagName, const int FlagStatus);
 	static void FloatFlagListener(const char* const FlagName, const int FlagStatus);
 	static void IntFlagListener(const char* const FlagName, const int FlagStatus);

@@ -7,6 +7,31 @@
 
 #include "LaunchDarklyHelpers.h"
 
+TMap<FString, TArray<ULdBoolFlagListener*>>& FLaunchDarklyImplBase::GetBoolFlagListeners()
+{
+	return BoolFlagListeners;
+}
+
+TMap<FString, TArray<ULdFloatFlagListener*>>& FLaunchDarklyImplBase::GetFloatFlagListeners()
+{
+	return FloatFlagListeners;
+}
+
+TMap<FString, TArray<ULdIntFlagListener*>>& FLaunchDarklyImplBase::GetIntFlagListeners()
+{
+	return IntFlagListeners;
+}
+
+TMap<FString, TArray<ULdJsonFlagListener*>>& FLaunchDarklyImplBase::GetJsonFlagListeners()
+{
+	return JsonFlagListeners;
+}
+
+TMap<FString, TArray<ULdStringFlagListener*>>& FLaunchDarklyImplBase::GetStringFlagListeners()
+{
+	return StringFlagListeners;
+}
+
 void FLaunchDarklyImplBase::InitJavaFunctions()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("CALLED BUT UNSUPPORTED: LaunchDarkly Plugin Java functions initialized from Generic Platform."));
@@ -177,3 +202,61 @@ void FLaunchDarklyImplBase::Track(FString MetricName, TSharedPtr<FJsonObject> Da
 	);
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, DebugMessage);
 } 
+
+void FLaunchDarklyImplBase::ResetListeners()
+{
+	for(auto& Entry : BoolFlagListeners)
+	{
+		TArray<ULdBoolFlagListener*>& Listeners = Entry.Value;
+		for(auto& Listener : Listeners)
+		{
+			Listener->RemoveFromRoot();
+		}
+		Listeners.Empty();
+	}
+	BoolFlagListeners.Empty();
+
+	for(auto& Entry : FloatFlagListeners)
+	{
+		TArray<ULdFloatFlagListener*>& Listeners = Entry.Value;
+		for(auto& Listener : Listeners)
+		{
+			Listener->RemoveFromRoot();
+		}
+		Listeners.Empty();
+	}
+	FloatFlagListeners.Empty();
+
+	for(auto& Entry : IntFlagListeners)
+	{
+		TArray<ULdIntFlagListener*>& Listeners = Entry.Value;
+		for(auto& Listener : Listeners)
+		{
+			Listener->RemoveFromRoot();
+		}
+		Listeners.Empty();
+	}
+	IntFlagListeners.Empty();
+
+	for(auto& Entry : JsonFlagListeners)
+	{
+		TArray<ULdJsonFlagListener*>& Listeners = Entry.Value;
+		for(auto& Listener : Listeners)
+		{
+			Listener->RemoveFromRoot();
+		}
+		Listeners.Empty();
+	}
+	JsonFlagListeners.Empty();
+
+	for(auto& Entry : StringFlagListeners)
+	{
+		TArray<ULdStringFlagListener*>& Listeners = Entry.Value;
+		for(auto& Listener : Listeners)
+		{
+			Listener->RemoveFromRoot();
+		}
+		Listeners.Empty();
+	}
+	StringFlagListeners.Empty();
+}

@@ -7,12 +7,6 @@
 class LAUNCHDARKLYCLIENT_API FLaunchDarklyImpl : public FLaunchDarklyImplBase
 {
 public:
-	static TMap<FString, TArray<ULdBoolFlagListener*>> BoolFlagListeners;
-	static TMap<FString, TArray<ULdFloatFlagListener*>> FloatFlagListeners;
-	static TMap<FString, TArray<ULdIntFlagListener*>> IntFlagListeners;
-	static TMap<FString, TArray<ULdJsonFlagListener*>> JsonFlagListeners;
-	static TMap<FString, TArray<ULdStringFlagListener*>> StringFlagListeners;
-
 	~FLaunchDarklyImpl() override {}
 
 	void InitJavaFunctions() override;

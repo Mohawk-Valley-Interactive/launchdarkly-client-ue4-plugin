@@ -18,14 +18,9 @@
 
 LDClient_i* FLaunchDarklyImpl::LdClient = NULL;
 
-TMap<FString, TArray<ULdBoolFlagListener*>> FLaunchDarklyImpl::BoolFlagListeners;
-TMap<FString, TArray<ULdFloatFlagListener*>> FLaunchDarklyImpl::FloatFlagListeners;
-TMap<FString, TArray<ULdIntFlagListener*>> FLaunchDarklyImpl::IntFlagListeners;
-TMap<FString, TArray<ULdJsonFlagListener*>> FLaunchDarklyImpl::JsonFlagListeners;
-TMap<FString, TArray<ULdStringFlagListener*>> FLaunchDarklyImpl::StringFlagListeners;
-
 void FLaunchDarklyImpl::BoolFlagListener(const char* const FlagName, const int Status)
 {
+	TMap<FString, TArray<ULdBoolFlagListener*>>& BoolFlagListeners = FLaunchDarklyClientModule::Get()->GetBoolFlagListeners();
 	if(BoolFlagListeners.Contains(FlagName))
 	{
 		TArray<ULdBoolFlagListener*>& ListenerArray = BoolFlagListeners[FlagName];
@@ -42,6 +37,7 @@ void FLaunchDarklyImpl::BoolFlagListener(const char* const FlagName, const int S
 
 void FLaunchDarklyImpl::FloatFlagListener(const char* const FlagName, const int Status)
 {
+	TMap<FString, TArray<ULdFloatFlagListener*>>& FloatFlagListeners = FLaunchDarklyClientModule::Get()->GetFloatFlagListeners();
 	if(FloatFlagListeners.Contains(FlagName))
 	{
 		TArray<ULdFloatFlagListener*>& ListenerArray = FloatFlagListeners[FlagName];
@@ -58,6 +54,7 @@ void FLaunchDarklyImpl::FloatFlagListener(const char* const FlagName, const int 
 
 void FLaunchDarklyImpl::IntFlagListener(const char* const FlagName, const int Status)
 {
+	TMap<FString, TArray<ULdIntFlagListener*>>& IntFlagListeners = FLaunchDarklyClientModule::Get()->GetIntFlagListeners();
 	if(IntFlagListeners.Contains(FlagName))
 	{
 		TArray<ULdIntFlagListener*>& ListenerArray = IntFlagListeners[FlagName];
@@ -74,6 +71,7 @@ void FLaunchDarklyImpl::IntFlagListener(const char* const FlagName, const int St
 
 void FLaunchDarklyImpl::JsonFlagListener(const char* const FlagName, const int Status)
 {
+	TMap<FString, TArray<ULdJsonFlagListener*>>& JsonFlagListeners = FLaunchDarklyClientModule::Get()->GetJsonFlagListeners();
 	if(JsonFlagListeners.Contains(FlagName))
 	{
 		TArray<ULdJsonFlagListener*>& ListenerArray = JsonFlagListeners[FlagName];
@@ -90,6 +88,7 @@ void FLaunchDarklyImpl::JsonFlagListener(const char* const FlagName, const int S
 
 void FLaunchDarklyImpl::StringFlagListener(const char* const FlagName, const int Status)
 {
+	TMap<FString, TArray<ULdStringFlagListener*>>& StringFlagListeners = FLaunchDarklyClientModule::Get()->GetStringFlagListeners();
 	if(StringFlagListeners.Contains(FlagName))
 	{
 		TArray<ULdStringFlagListener*>& ListenerArray = StringFlagListeners[FlagName];
@@ -152,6 +151,7 @@ bool FLaunchDarklyImpl::InitializeClient(ULdConfigObject* LdConfigObject, ULdUse
 		return false;
 	}
 
+	ResetListeners();
 	LDSetClientStatusCallback(FLaunchDarklyImpl::ClientStatusCallback);
 
 	LDConfig* const LdConfig = LdConfigObject->ToLdConfig();
@@ -177,6 +177,7 @@ void FLaunchDarklyImpl::ShutdownClient()
 
 	if(IsInitialized())
 	{
+		ResetListeners();
 		LDClientClose(LdClient);
 	}
 	else
@@ -327,12 +328,14 @@ void FLaunchDarklyImpl::RegisterBoolFlagListener(ULdBoolFlagListener* FlagListen
 	{
 		BoolFlagListeners[FlagName].Add(FlagListener);
 	}
+	FlagListener->AddToRoot();
 }
 
 void FLaunchDarklyImpl::UnregisterBoolFlagListener(ULdBoolFlagListener* FlagListener, FString FlagName)
 {
 	if(BoolFlagListeners.Contains(FlagName))
 	{
+		FlagListener->RemoveFromRoot();
 		BoolFlagListeners[FlagName].Remove(FlagListener);
 		if(BoolFlagListeners[FlagName].Num() == 0)
 		{
@@ -360,12 +363,14 @@ void FLaunchDarklyImpl::RegisterFloatFlagListener(ULdFloatFlagListener* FlagList
 	{
 		FloatFlagListeners[FlagName].Add(FlagListener);
 	}
+	FlagListener->AddToRoot();
 }
 
 void FLaunchDarklyImpl::UnregisterFloatFlagListener(ULdFloatFlagListener* FlagListener, FString FlagName)
 {
 	if(FloatFlagListeners.Contains(FlagName))
 	{
+		FlagListener->RemoveFromRoot();
 		FloatFlagListeners[FlagName].Remove(FlagListener);
 		if(FloatFlagListeners[FlagName].Num() == 0)
 		{
@@ -393,12 +398,14 @@ void FLaunchDarklyImpl::RegisterIntFlagListener(ULdIntFlagListener* FlagListener
 	{
 		IntFlagListeners[FlagName].Add(FlagListener);
 	}
+	FlagListener->AddToRoot();
 }
 
 void FLaunchDarklyImpl::UnregisterIntFlagListener(ULdIntFlagListener* FlagListener, FString FlagName)
 {
 	if(IntFlagListeners.Contains(FlagName))
 	{
+		FlagListener->RemoveFromRoot();
 		IntFlagListeners[FlagName].Remove(FlagListener);
 		if(IntFlagListeners[FlagName].Num() == 0)
 		{
@@ -426,12 +433,14 @@ void FLaunchDarklyImpl::RegisterJsonFlagListener(ULdJsonFlagListener* FlagListen
 	{
 		JsonFlagListeners[FlagName].Add(FlagListener);
 	}
+	FlagListener->AddToRoot();
 }
 
 void FLaunchDarklyImpl::UnregisterJsonFlagListener(ULdJsonFlagListener* FlagListener, FString FlagName)
 {
 	if(JsonFlagListeners.Contains(FlagName))
 	{
+		FlagListener->RemoveFromRoot();
 		JsonFlagListeners[FlagName].Remove(FlagListener);
 		if(JsonFlagListeners[FlagName].Num() == 0)
 		{
@@ -459,12 +468,14 @@ void FLaunchDarklyImpl::RegisterStringFlagListener(ULdStringFlagListener* FlagLi
 	{
 		StringFlagListeners[FlagName].Add(FlagListener);
 	}
+	FlagListener->AddToRoot();
 }
 
 void FLaunchDarklyImpl::UnregisterStringFlagListener(ULdStringFlagListener* FlagListener, FString FlagName)
 {
 	if(StringFlagListeners.Contains(FlagName))
 	{
+		FlagListener->RemoveFromRoot();
 		StringFlagListeners[FlagName].Remove(FlagListener);
 		if(StringFlagListeners[FlagName].Num() == 0)
 		{
@@ -504,26 +515,31 @@ void FLaunchDarklyImpl::Track(FString MetricName, TSharedPtr<FJsonObject> const 
 
 void FLaunchDarklyImpl::RestoreFlagListeners()
 {
+	TMap<FString, TArray<ULdBoolFlagListener*>>& BoolFlagListeners = FLaunchDarklyClientModule::Get()->GetBoolFlagListeners();
 	for(auto Entry : BoolFlagListeners)
 	{
 		LDClientRegisterFeatureFlagListener(LdClient, TCHAR_TO_ANSI(*(Entry.Key)), FLaunchDarklyImpl::BoolFlagListener);
 	}
 
+	TMap<FString, TArray<ULdFloatFlagListener*>>& FloatFlagListeners = FLaunchDarklyClientModule::Get()->GetFloatFlagListeners();
 	for(auto Entry : FloatFlagListeners)
 	{
 		LDClientRegisterFeatureFlagListener(LdClient, TCHAR_TO_ANSI(*(Entry.Key)), FLaunchDarklyImpl::FloatFlagListener);
 	}
 
+	TMap<FString, TArray<ULdIntFlagListener*>>& IntFlagListeners = FLaunchDarklyClientModule::Get()->GetIntFlagListeners();
 	for(auto Entry : IntFlagListeners)
 	{
 		LDClientRegisterFeatureFlagListener(LdClient, TCHAR_TO_ANSI(*(Entry.Key)), FLaunchDarklyImpl::IntFlagListener);
 	}
 
+	TMap<FString, TArray<ULdJsonFlagListener*>>& JsonFlagListeners = FLaunchDarklyClientModule::Get()->GetJsonFlagListeners();
 	for(auto Entry : JsonFlagListeners)
 	{
 		LDClientRegisterFeatureFlagListener(LdClient, TCHAR_TO_ANSI(*(Entry.Key)), FLaunchDarklyImpl::JsonFlagListener);
 	}
 
+	TMap<FString, TArray<ULdStringFlagListener*>>& StringFlagListeners = FLaunchDarklyClientModule::Get()->GetStringFlagListeners();
 	for(auto Entry : StringFlagListeners)
 	{
 		LDClientRegisterFeatureFlagListener(LdClient, TCHAR_TO_ANSI(*(Entry.Key)), FLaunchDarklyImpl::StringFlagListener);
@@ -532,6 +548,7 @@ void FLaunchDarklyImpl::RestoreFlagListeners()
 
 void FLaunchDarklyImpl::UpdateAllFlagListeners()
 {
+	TMap<FString, TArray<ULdBoolFlagListener*>>& BoolFlagListeners = FLaunchDarklyClientModule::Get()->GetBoolFlagListeners();
 	for(auto Entry : BoolFlagListeners)
 	{
 		bool FVal = LDBoolVariation(LdClient, TCHAR_TO_ANSI(*(Entry.Key)), false);
@@ -542,6 +559,7 @@ void FLaunchDarklyImpl::UpdateAllFlagListeners()
 		}
 	}
 
+	TMap<FString, TArray<ULdFloatFlagListener*>>& FloatFlagListeners = FLaunchDarklyClientModule::Get()->GetFloatFlagListeners();
 	for(auto Entry : FloatFlagListeners)
 	{
 		float FVal = (float)LDDoubleVariation(LdClient, TCHAR_TO_ANSI(*(Entry.Key)), 0.0);
@@ -552,6 +570,7 @@ void FLaunchDarklyImpl::UpdateAllFlagListeners()
 		}
 	}
 
+	TMap<FString, TArray<ULdIntFlagListener*>>& IntFlagListeners = FLaunchDarklyClientModule::Get()->GetIntFlagListeners();
 	for(auto Entry : IntFlagListeners)
 	{
 		int FVal = LDIntVariation(LdClient, TCHAR_TO_ANSI(*(Entry.Key)), 0);
@@ -562,6 +581,7 @@ void FLaunchDarklyImpl::UpdateAllFlagListeners()
 		}
 	}
 
+	TMap<FString, TArray<ULdJsonFlagListener*>>& JsonFlagListeners = FLaunchDarklyClientModule::Get()->GetJsonFlagListeners();
 	for(auto Entry : JsonFlagListeners)
 	{
 		LDNode* DefaultValueAsLdNode = LDNodeFromJSON("{}");
@@ -577,6 +597,7 @@ void FLaunchDarklyImpl::UpdateAllFlagListeners()
 		}
 	}
 
+	TMap<FString, TArray<ULdStringFlagListener*>>& StringFlagListeners = FLaunchDarklyClientModule::Get()->GetStringFlagListeners();
 	for(auto Entry : StringFlagListeners)
 	{
 		FString FVal = LDStringVariationAlloc(LdClient, TCHAR_TO_ANSI(*(Entry.Key)), "");

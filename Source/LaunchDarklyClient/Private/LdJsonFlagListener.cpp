@@ -11,7 +11,6 @@ ULdJsonFlagListener::ULdJsonFlagListener()
 void ULdJsonFlagListener::BeginDestroy()
 {
 	Unregister();
-
 	Super::BeginDestroy();
 }
 

@@ -10,7 +10,6 @@ ULdIntFlagListener::ULdIntFlagListener()
 void ULdIntFlagListener::BeginDestroy()
 {
 	Unregister();
-
 	Super::BeginDestroy();
 }
 

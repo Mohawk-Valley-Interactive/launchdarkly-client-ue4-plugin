@@ -10,7 +10,6 @@ ULdFloatFlagListener::ULdFloatFlagListener()
 void ULdFloatFlagListener::BeginDestroy()
 {
 	Unregister();
-
 	Super::BeginDestroy();
 }
 
